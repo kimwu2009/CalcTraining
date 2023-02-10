@@ -8,7 +8,6 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Canvas Margin="10,10,10,10">
-            <Button x:Name="button" Content="生成" Click="button_Click" Width="84" HorizontalAlignment="Left" Canvas.Left="555" Canvas.Top="361" VerticalAlignment="Top"/>
             <TextBox x:Name="textBox" Canvas.Left="10" TextWrapping="Wrap" IsReadOnly="True" Canvas.Top="10" Width="380" HorizontalAlignment="Center" Height="370" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto"/>
             <GroupBox x:Name="groupBox" Height="116" Header="题型" Width="155" Canvas.Left="395" Canvas.Top="10" HorizontalAlignment="Center" VerticalAlignment="Top">
                 <StackPanel>
@@ -25,6 +24,8 @@
                     <TextBox x:Name="textBox2" TextWrapping="Wrap" Text="10" local:TextBoxAttachedProperties.IsOnlyNumber="True" Margin="5,0,5,0"/>
                 </StackPanel>
             </GroupBox>
+            <Button x:Name="button" Content="生成" Click="button_Click" Width="84" HorizontalAlignment="Center" Canvas.Left="472" Canvas.Top="176" VerticalAlignment="Top"/>
+            <Button x:Name="button1" Content="清空" Width="84" Canvas.Left="576" Canvas.Top="176" HorizontalAlignment="Center" VerticalAlignment="Top" Click="button1_Click"/>
         </Canvas>
     </Grid>
 </Window>

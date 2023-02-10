@@ -23,6 +23,7 @@ namespace CalcTraining
     /// </summary>
     public partial class MainWindow : Window
     {
+        readonly List<Formula> Formulas = new List<Formula>();
         readonly Random random = new Random();
         int Page_Size = 100;
         int Page_Count = 10;
@@ -56,7 +57,7 @@ namespace CalcTraining
                 throw new ArgumentOutOfRangeException("minValue CANNOT be greater than or equal to maxValue!");
             }
 
-            int r = -1;
+            int r;
             while (true)
             {
                 r = random.Next();
@@ -85,134 +86,155 @@ namespace CalcTraining
 
         void Mix_Add_Sub(string name)
         {
-            Log($"{name}，生成时间：{DateTime.Now}");
+            Log($"-----{name}，生成时间：{DateTime.Now}-----");
 
-            DataTable dt = new DataTable();
-            dt.Columns.Add("编号");
-            dt.Columns.Add("左");
-            dt.Columns.Add("符号");
-            dt.Columns.Add("右");
-            dt.Columns.Add("等于");
-            dt.Columns.Add("结果");
+            Formulas.Clear();
 
             int[] arr = GetRandomIntegers(Page_Size * Page_Count, 101, 10);
             List<int> list = new List<int>(arr);
-            int idx = 1;
+            int idx = 0;
             while (list.Count > 0)
             {
+                if (idx % Page_Size == 0)
+                {
+                    Log($"-----第{idx / Page_Size + 1}页：-----");
+                }
+
                 int i1 = random.Next(list.Count);
                 int x1 = list[i1];
                 list.RemoveAt(i1);
 
                 int x2 = GetRandomInteger(x1, 2);
 
+                Formula f = new Formula();
+                Formulas.Add(f);
+                f.Index = idx % Page_Size + 1;
                 if (random.Next() % 100 < 50)
                 {
-                    Log($"({idx}) {x1 - x2} + {x2} =");
-                    dt.Rows.Add($"({idx})", $"{x1 - x2}", "+", $"{x2}", "=", "        ");
+                    f.Number1 = x1 - x2;
+                    f.Number2 = x2;
+                    f.Operator1 = "+";
                 }
                 else
                 {
-                    Log($"({idx}) {x1} - {x2} =");
-                    dt.Rows.Add($"({idx})", $"{x1}", "-", $"{x2}", "=", "        ");
+                    f.Number1 = x1;
+                    f.Number2 = x2;
+                    f.Operator1 = "-";
                 }
+                Log(f.ToString());
 
                 idx++;
             }
 
-            SaveDialog(name, dt);
+            SaveDialog(name);
         }
 
         void Mix_Mul_Div(string name)
         {
-            Log($"{name}，生成时间：{DateTime.Now}");
+            Log($"-----{name}，生成时间：{DateTime.Now}-----");
 
-            DataTable dt = new DataTable();
-            dt.Columns.Add("编号");
-            dt.Columns.Add("左");
-            dt.Columns.Add("符号");
-            dt.Columns.Add("右");
-            dt.Columns.Add("等于");
-            dt.Columns.Add("结果");
+            Formulas.Clear();
 
             int[] arr = GetRandomIntegers(Page_Size * Page_Count, 10, 2);
             List<int> list = new List<int>(arr);
-            int idx = 1;
+            int idx = 0;
             while (list.Count > 0)
             {
+                if (idx % Page_Size == 0)
+                {
+                    Log($"-----第{idx / Page_Size + 1}页：-----");
+                }
+
                 int i1 = random.Next(list.Count);
                 int x1 = list[i1];
                 list.RemoveAt(i1);
 
                 int x2 = GetRandomInteger(10, 2);
 
+                Formula f = new Formula();
+                Formulas.Add(f);
+                f.Index = idx % Page_Size + 1;
                 if (random.Next() % 100 < 40)
                 {
-                    Log($"({idx}) {x1} × {x2} =");
-                    dt.Rows.Add($"({idx})", $"{x1}", "×", $"{x2}", "=", "        ");
+                    f.Number1 = x1;
+                    f.Number2 = x2;
+                    f.Operator1 = "×";
                 }
                 else
                 {
-                    Log($"({idx}) {x1 * x2} ÷ {x1} =");
-                    dt.Rows.Add($"({idx})", $"{x1 * x2}", "÷", $"{x1}", "=", "        ");
+                    f.Number1 = x1 * x2;
+                    f.Number2 = x1;
+                    f.Operator1 = "÷";
                 }
+                Log(f.ToString());
 
                 idx++;
             }
 
-            SaveDialog(name, dt);
+            SaveDialog(name);
         }
 
         void Mix_All(string name)
         {
-            Log($"{name}，生成时间：{DateTime.Now}");
+            Log($"-----{name}，生成时间：{DateTime.Now}-----");
 
-            DataTable dt = new DataTable();
-            dt.Columns.Add("编号");
-            dt.Columns.Add("左");
-            dt.Columns.Add("符号");
-            dt.Columns.Add("右");
-            dt.Columns.Add("等于");
-            dt.Columns.Add("结果");
+            Formulas.Clear();
 
             int count = Page_Size * Page_Count;
-            for (int i = 1; i <= count; i++)
+            for (int i = 0; i < count; i++)
             {
+                if (i % Page_Size == 0)
+                {
+                    Log($"-----第{i / Page_Size + 1}页：-----");
+                }
+
+                Formula f = new Formula();
+                Formulas.Add(f);
+                f.Index = i % Page_Size + 1;
                 int tmp = random.Next() % 100;
                 if (tmp < 20)
                 {
                     int x1 = GetRandomInteger(101, 11);
                     int x2 = GetRandomInteger(x1, 2);
-                    Log($"({i}) {x1 - x2} + {x2} =");
-                    dt.Rows.Add($"({i})", $"{x1 - x2}", "+", $"{x2}", "=", "        ");
+
+                    f.Number1 = x1 - x2;
+                    f.Number2 = x2;
+                    f.Operator1 = "+";
                 }
                 else if (tmp < 40)
                 {
                     int x1 = GetRandomInteger(101, 11);
                     int x2 = GetRandomInteger(x1, 2);
-                    Log($"({i}) {x1} - {x2} =");
-                    dt.Rows.Add($"({i})", $"{x1}", "-", $"{x2}", "=", "        ");
+
+                    f.Number1 = x1;
+                    f.Number2 = x2;
+                    f.Operator1 = "-";
                 }
                 else if (tmp < 60)
                 {
                     int x1 = GetRandomInteger(10, 2);
                     int x2 = GetRandomInteger(10, 2);
-                    Log($"({i}) {x1} × {x2} =");
-                    dt.Rows.Add($"({i})", $"{x1}", "×", $"{x2}", "=", "        ");
+
+                    f.Number1 = x1;
+                    f.Number2 = x2;
+                    f.Operator1 = "×";
                 }
                 else
                 {
                     int x1 = GetRandomInteger(10, 2);
                     int x2 = GetRandomInteger(10, 2);
-                    Log($"({i}) {x1 * x2} ÷ {x1} =");
-                    dt.Rows.Add($"({i})", $"{x1 * x2}", "÷", $"{x1}", "=", "        ");
+
+                    f.Number1 = x1 * x2;
+                    f.Number2 = x1;
+                    f.Operator1 = "÷";
                 }
+                Log(f.ToString());
             }
 
-            SaveDialog(name, dt);
+            SaveDialog(name);
         }
 
-        void SaveDialog(string name, DataTable dt)
+        void SaveDialog(string name)
         {
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.Filter = "Microsoft Excel 文件(*.xls)|*.xls";
@@ -221,18 +243,22 @@ namespace CalcTraining
             dialog.RestoreDirectory = true;
             if (dialog.ShowDialog(this) == true)
             {
-                SaveToExcel(name, dialog.FileName, dt);
+                SaveToExcel(name, dialog.FileName);
             }
         }
 
-        void FillPage(Worksheet sheet, DataTable dt, string name, int page, int col)
+        void FillPage(Worksheet sheet, string name, int page, int col)
         {
-            int cc = dt.Columns.Count;
             int pr = (int)Math.Ceiling((double)Page_Size / col);
             int startRow = (pr + 2) * page + 1;
             int endRow = startRow + 2 + pr;
 
 
+            int cc = 0;
+            if (Formulas.Count > 0)
+            {
+                cc = Formulas[0].ColumnCount;
+            }
             sheet.Range[startRow, 1, startRow, col * cc].Merge();
             sheet.Range[startRow, 1].HorizontalAlignment = HorizontalAlignType.Center;
             sheet.Range[startRow, 1].VerticalAlignment = VerticalAlignType.Top;
@@ -252,18 +278,18 @@ namespace CalcTraining
             for (int i = 0; i < Page_Size; i++)
             {
                 int idx = page * Page_Size + i;
-                if (idx >= dt.Rows.Count)
+                if (idx >= Formulas.Count)
                 {
                     break;
                 }
 
-                var row = dt.Rows[idx];
+                var row = Formulas[idx].ToArray();
 
                 int x = startRow + 2 + i / col;
-                for (int j = 0; j < row.ItemArray.Length; j++)
+                for (int j = 0; j < row.Length; j++)
                 {
                     int y = (i % col) * cc + j + 1;
-                    sheet.Range[x, y].Text = $"{row.ItemArray[j]}";
+                    sheet.Range[x, y].Text = $"{row[j]}";
                 }
             }
 
@@ -286,7 +312,7 @@ namespace CalcTraining
             }
         }
 
-        void SaveToExcel(string name, string path, DataTable dt, int col = 3)
+        void SaveToExcel(string name, string path, int col = 3)
         {
             Workbook workbook = new Workbook();
             Worksheet sheet = workbook.Worksheets[0];
@@ -295,12 +321,12 @@ namespace CalcTraining
             sheet.PageSetup.BottomMargin = 0.5;
             sheet.PageSetup.FooterMarginInch = 0.2;
             sheet.PageSetup.CenterFooter = "&\"Arial\"&10&B&K000000第&P页，总&N页";
-            sheet.PageSetup.RightFooter = $"&\"Arial\"&8&B&K000000Powered by kim.wu © {DateTime.Now.Year}.";
+            sheet.PageSetup.RightFooter = $"&\"Arial\"&8&B&K999999Powered by kim.wu © {DateTime.Now.Year}.";
 
 
             for (int i = 0; i < Page_Count; i++)
             {
-                FillPage(sheet, dt, name, i, col);
+                FillPage(sheet, name, i, col);
             }
 
 
@@ -347,6 +373,11 @@ namespace CalcTraining
             {
                 Mix_All($"{radioButton2.Content}");
             }
+        }
+
+        private void button1_Click(object sender, RoutedEventArgs e)
+        {
+            ClearLog();
         }
     }
 }
