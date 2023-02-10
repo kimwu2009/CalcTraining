@@ -95,7 +95,7 @@ namespace CalcTraining
             dt.Columns.Add("等于");
             dt.Columns.Add("结果");
 
-            int[] arr = GetRandomIntegers(Page_Size, 101, 10);
+            int[] arr = GetRandomIntegers(Page_Size * Page_Count, 101, 10);
             List<int> list = new List<int>(arr);
             int idx = 1;
             while (list.Count > 0)
@@ -135,7 +135,7 @@ namespace CalcTraining
             dt.Columns.Add("等于");
             dt.Columns.Add("结果");
 
-            int[] arr = GetRandomIntegers(Page_Size, 10, 2);
+            int[] arr = GetRandomIntegers(Page_Size * Page_Count, 10, 2);
             List<int> list = new List<int>(arr);
             int idx = 1;
             while (list.Count > 0)
@@ -175,7 +175,8 @@ namespace CalcTraining
             dt.Columns.Add("等于");
             dt.Columns.Add("结果");
 
-            for (int i = 1; i <= Page_Size; i++)
+            int count = Page_Size * Page_Count;
+            for (int i = 1; i <= count; i++)
             {
                 int tmp = random.Next() % 100;
                 if (tmp < 20)
@@ -224,6 +225,67 @@ namespace CalcTraining
             }
         }
 
+        void FillPage(Worksheet sheet, DataTable dt, string name, int page, int col)
+        {
+            int cc = dt.Columns.Count;
+            int pr = (int)Math.Ceiling((double)Page_Size / col);
+            int startRow = (pr + 2) * page + 1;
+            int endRow = startRow + 2 + pr;
+
+
+            sheet.Range[startRow, 1, startRow, col * cc].Merge();
+            sheet.Range[startRow, 1].HorizontalAlignment = HorizontalAlignType.Center;
+            sheet.Range[startRow, 1].VerticalAlignment = VerticalAlignType.Top;
+            sheet.Range[startRow, 1].Style.Font.IsBold = true;
+            sheet.Range[startRow, 1].Style.Font.Size = 20;
+            sheet.Range[startRow, 1].RowHeight = 30;
+            sheet.Range[startRow, 1].Text = name;
+
+            sheet.Range[startRow + 1, 1, startRow + 1, col * cc].Merge();
+            sheet.Range[startRow + 1, 1].HorizontalAlignment = HorizontalAlignType.Center;
+            sheet.Range[startRow + 1, 1].VerticalAlignment = VerticalAlignType.Center;
+            sheet.Range[startRow + 1, 1].Style.Font.Size = 12;
+            sheet.Range[startRow + 1, 1].RowHeight = 21;
+            sheet.Range[startRow + 1, 1].Text = "姓名：________     日期：________     用时：______分钟     成绩________";
+
+
+            for (int i = 0; i < Page_Size; i++)
+            {
+                int idx = page * Page_Size + i;
+                if (idx >= dt.Rows.Count)
+                {
+                    break;
+                }
+
+                var row = dt.Rows[idx];
+
+                int x = startRow + 2 + i / col;
+                for (int j = 0; j < row.ItemArray.Length; j++)
+                {
+                    int y = (i % col) * cc + j + 1;
+                    sheet.Range[x, y].Text = $"{row.ItemArray[j]}";
+                }
+            }
+
+
+            sheet.Range[startRow + 2, 1, endRow, col * cc].Style.Font.Size = 12;
+            sheet.Range[startRow + 2, 1, endRow, col * cc].RowHeight = 21;
+            for (int i = 0; i < col; i++)
+            {
+                sheet.Range[startRow + 2, i * cc + 1, endRow, i * cc + 1].ColumnWidth = 5.57;
+                sheet.Range[startRow + 2, i * cc + 2, endRow, i * cc + 2].ColumnWidth = 5.14;
+                sheet.Range[startRow + 2, i * cc + 3, endRow, i * cc + 3].ColumnWidth = 2.29;
+                sheet.Range[startRow + 2, i * cc + 4, endRow, i * cc + 4].ColumnWidth = 5.14;
+                sheet.Range[startRow + 2, i * cc + 5, endRow, i * cc + 5].ColumnWidth = 2.29;
+                sheet.Range[startRow + 2, i * cc + 6, endRow, i * cc + 6].ColumnWidth = 8.57;
+
+                sheet.Range[startRow + 2, i * cc + 1, endRow, i * cc + 2].Style.HorizontalAlignment = HorizontalAlignType.Right;
+                sheet.Range[startRow + 2, i * cc + 3, endRow, i * cc + 3].Style.HorizontalAlignment = HorizontalAlignType.Center;
+
+                sheet.Range[startRow + 2, i * cc + 6, endRow, i * cc + 6].Style.Font.Underline = FontUnderlineType.Single;
+            }
+        }
+
         void SaveToExcel(string name, string path, DataTable dt, int col = 3)
         {
             Workbook workbook = new Workbook();
@@ -235,53 +297,12 @@ namespace CalcTraining
             sheet.PageSetup.CenterFooter = "&\"Arial\"&10&B&K000000第&P页，总&N页";
             sheet.PageSetup.RightFooter = $"&\"Arial\"&8&B&K000000Powered by kim.wu © {DateTime.Now.Year}.";
 
-            int cc = dt.Columns.Count;
 
-            sheet.Range[1, 1, 1, col * cc].Merge();
-            sheet.Range[1, 1].HorizontalAlignment = HorizontalAlignType.Center;
-            sheet.Range[1, 1].VerticalAlignment = VerticalAlignType.Top;
-            sheet.Range[1, 1].Style.Font.IsBold = true;
-            sheet.Range[1, 1].Style.Font.Size = 20;
-            sheet.Range[1, 1].RowHeight = 30;
-            sheet.Range[1, 1].Text = name;
-
-            sheet.Range[2, 1, 2, col * cc].Merge();
-            sheet.Range[2, 1].HorizontalAlignment = HorizontalAlignType.Center;
-            sheet.Range[2, 1].VerticalAlignment = VerticalAlignType.Center;
-            sheet.Range[2, 1].Style.Font.Size = 12;
-            sheet.Range[2, 1].RowHeight = 21;
-            sheet.Range[2, 1].Text = "姓名：________     日期：________     用时：______分钟     成绩________";
-
-            int first = 3;
-            int rc = dt.Rows.Count;
-            for (int i = 0; i < rc; i++)
+            for (int i = 0; i < Page_Count; i++)
             {
-                var row = dt.Rows[i];
-
-                int x = i / col + first;
-                for (int j = 0; j < row.ItemArray.Length; j++)
-                {
-                    int y = (i % col) * cc + j + 1;
-                    sheet.Range[x, y].Text = $"{row.ItemArray[j]}";
-                }
+                FillPage(sheet, dt, name, i, col);
             }
 
-            sheet.Range[first, 1, rc / col + first, col * cc].Style.Font.Size = 12;
-            sheet.Range[first, 1, rc / col + first, col * cc].RowHeight = 21;
-            for (int i = 0; i < col; i++)
-            {
-                sheet.Range[first, i * cc + 1, rc / col + first, i * cc + 1].ColumnWidth = 5.57;
-                sheet.Range[first, i * cc + 2, rc / col + first, i * cc + 2].ColumnWidth = 5.14;
-                sheet.Range[first, i * cc + 3, rc / col + first, i * cc + 3].ColumnWidth = 2.29;
-                sheet.Range[first, i * cc + 4, rc / col + first, i * cc + 4].ColumnWidth = 5.14;
-                sheet.Range[first, i * cc + 5, rc / col + first, i * cc + 5].ColumnWidth = 2.29;
-                sheet.Range[first, i * cc + 6, rc / col + first, i * cc + 6].ColumnWidth = 8.57;
-
-                sheet.Range[first, i * cc + 1, rc / col + first, i * cc + 2].Style.HorizontalAlignment = HorizontalAlignType.Right;
-                sheet.Range[first, i * cc + 3, rc / col + first, i * cc + 3].Style.HorizontalAlignment = HorizontalAlignType.Center;
-
-                sheet.Range[first, i * cc + 6, rc / col + first, i * cc + 6].Style.Font.Underline = FontUnderlineType.Single;
-            }
 
             workbook.SaveToFile(path, ExcelVersion.Version2010);
             workbook.Dispose();
